@@ -20,8 +20,8 @@ tags:
   - TrapDoor
   - SSH
 query: |
-  let StartTime = todatetime('{{StartTimeISO}}');
-  let EndTime = todatetime('{{EndTimeISO}}');
+  let StartTime = ago(1d);
+  let EndTime = now();
   let KeyAccess =
     DeviceFileEvents
     | where TimeGenerated between (StartTime .. EndTime)
@@ -40,7 +40,7 @@ query: |
     | project EgressTime=TimeGenerated, DeviceId, RemoteIP, RemotePort, RemoteUrl,
             EgressProcess=InitiatingProcessFileName, EgressCommand=InitiatingProcessCommandLine;
   KeyAccess
-      | join kind=innerunique SshEgress on DeviceId
+  | join kind=innerunique SshEgress on DeviceId
   | where EgressTime between (KeyTime .. (KeyTime + 30m))
   | project TimeGenerated=KeyTime, EgressTime, DeviceName, AccountName,
           FileName, FolderPath, ActionType, KeyProcess, KeyCommand,

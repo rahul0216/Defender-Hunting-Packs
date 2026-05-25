@@ -20,8 +20,8 @@ tags:
   - TrapDoor
   - Linux persistence
 query: |
-  let StartTime = todatetime('{{StartTimeISO}}');
-  let EndTime = todatetime('{{EndTimeISO}}');
+  let StartTime = ago(1d);
+  let EndTime = now();
   let PersistenceTokens = dynamic([
     "crontab", "/etc/cron", "systemctl enable", "systemctl start", "/etc/systemd/system",
     "~/.bashrc", "~/.zshrc", "profile", "authorized_keys", "~/.ssh/config", ".cursorrules", "claude.md"
@@ -29,11 +29,11 @@ query: |
   let CampaignTokens = dynamic(["trap-core.js", "ddjidd564.github.io", "defi-security-best-practices", "p-2024-001", "node -e"]);
   DeviceProcessEvents
   | where TimeGenerated between (StartTime .. EndTime)
-    | where FileName in~ ("bash", "sh", "python", "python3", "node", "curl", "wget", "pwsh", "powershell.exe", "systemctl", "crontab", "ssh")
+  | where FileName in~ ("bash", "sh", "python", "python3", "node", "curl", "wget", "pwsh", "powershell.exe", "systemctl", "crontab", "ssh")
       or InitiatingProcessFileName in~ ("npm", "npm.cmd", "pip", "pip3", "python", "python3", "node", "cargo")
-    | where ProcessCommandLine has_any (PersistenceTokens)
-    | extend CampaignSignal = iff(ProcessCommandLine has_any (CampaignTokens), "CampaignLinked", "Behavioral")
-    | project TimeGenerated, DeviceName, DeviceId, AccountName, FileName, InitiatingProcessFileName,
+  | where ProcessCommandLine has_any (PersistenceTokens)
+  | extend CampaignSignal = iff(ProcessCommandLine has_any (CampaignTokens), "CampaignLinked", "Behavioral")
+  | project TimeGenerated, DeviceName, DeviceId, AccountName, FileName, InitiatingProcessFileName,
             ProcessCommandLine, InitiatingProcessCommandLine, CampaignSignal
   | order by TimeGenerated desc
 entityMappings:

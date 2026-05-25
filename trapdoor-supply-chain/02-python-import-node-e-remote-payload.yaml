@@ -20,8 +20,8 @@ tags:
   - Python
   - Node
 query: |
-  let StartTime = todatetime('{{StartTimeISO}}');
-  let EndTime = todatetime('{{EndTimeISO}}');
+  let StartTime = ago(1d);
+  let EndTime = now();
   let Indicators = dynamic(["ddjidd564.github.io", "defi-security-best-practices", "trap-core.js", "node -e", "p-2024-001"]);
   DeviceProcessEvents
   | where TimeGenerated between (StartTime .. EndTime)

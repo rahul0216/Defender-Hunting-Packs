@@ -20,8 +20,8 @@ tags:
   - Prompt injection
   - Persistence
 query: |
-  let StartTime = todatetime('{{StartTimeISO}}');
-  let EndTime = todatetime('{{EndTimeISO}}');
+  let StartTime = ago(1d);
+  let EndTime = now();
   let TargetFiles = dynamic([".cursorrules", "claude.md"]);
   let SuspiciousWriters = dynamic(["node.exe", "node", "python.exe", "python", "python3", "python3.exe", "npm", "npm.cmd", "pip", "pip3", "bash", "sh", "pwsh", "powershell.exe", "curl", "wget", "git"]);
   DeviceFileEvents

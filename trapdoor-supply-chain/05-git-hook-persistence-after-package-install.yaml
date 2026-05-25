@@ -20,8 +20,8 @@ tags:
   - TrapDoor
   - Git hooks
 query: |
-  let StartTime = todatetime('{{StartTimeISO}}');
-  let EndTime = todatetime('{{EndTimeISO}}');
+  let StartTime = ago(1d);
+  let EndTime = now();
   let TrapDoorPackages = dynamic([
     "async-pipeline-builder", "build-scripts-utils", "chain-key-validator", "crypto-credential-scanner",
     "defi-env-auditor", "defi-threat-scanner", "deployment-key-auditor", "dev-env-bootstrapper",

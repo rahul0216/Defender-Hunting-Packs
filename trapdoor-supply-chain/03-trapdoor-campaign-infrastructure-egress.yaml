@@ -20,8 +20,8 @@ tags:
   - Infrastructure
   - C2
 query: |
-  let StartTime = todatetime('{{StartTimeISO}}');
-  let EndTime = todatetime('{{EndTimeISO}}');
+  let StartTime = ago(1d);
+  let EndTime = now();
   let Domains = dynamic(["ddjidd564.github.io", "github.io/defi-security-best-practices"]);
   let SuspiciousProcs = dynamic(["node", "node.exe", "python", "python.exe", "python3", "python3.exe", "npm", "npm.cmd", "pip", "pip3", "cargo", "bash", "sh", "pwsh", "powershell.exe"]);
   DeviceNetworkEvents
