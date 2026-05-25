@@ -8,7 +8,7 @@ This repository contains practical Microsoft Defender XDR and Sentinel hunting p
 
 | Hunting pack | Focus area | Path |
 |---|---|---|
-| TrapDoor Supply Chain | Supply chain hunting for TrapDoor-style activity across developer and package ecosystems | [trapdoor-supply-chain](trapdoor-supply-chain/) |
+| TrapDoor Supply Chain | Threat hunting for TrapDoor supply chain activities across developer and package ecosystems | [trapdoor-supply-chain](trapdoor-supply-chain/README.md) |
 
 ## Disclaimer
 
