@@ -1,0 +1,48 @@
+id: fd19aa02-31a3-4fc8-92e9-c2f7e42f8bb5
+name: TrapDoor cron systemd and shell-hook persistence patterns
+description: |
+  Detects suspicious persistence commands that modify cron, systemd, shell startup files, or SSH config with campaign-linked process context.
+description-detailed: |
+  TrapDoor reporting referenced persistence through cron jobs, systemd, shell hooks, and SSH pathways. This hunt surfaces matching command-line behavior.
+requiredDataConnectors:
+  - connectorId: MicrosoftThreatProtection
+    dataTypes:
+      - DeviceProcessEvents
+tactics:
+  - Persistence
+  - LateralMovement
+relevantTechniques:
+  - T1053.003
+  - T1543.002
+  - T1546.004
+tags:
+  - Supply chain
+  - TrapDoor
+  - Linux persistence
+query: |
+  let StartTime = todatetime('{{StartTimeISO}}');
+  let EndTime = todatetime('{{EndTimeISO}}');
+  let PersistenceTokens = dynamic([
+    "crontab", "/etc/cron", "systemctl enable", "systemctl start", "/etc/systemd/system",
+    "~/.bashrc", "~/.zshrc", "profile", "authorized_keys", "~/.ssh/config", ".cursorrules", "claude.md"
+  ]);
+  let CampaignTokens = dynamic(["trap-core.js", "ddjidd564.github.io", "defi-security-best-practices", "p-2024-001", "node -e"]);
+  DeviceProcessEvents
+  | where TimeGenerated between (StartTime .. EndTime)
+    | where FileName in~ ("bash", "sh", "python", "python3", "node", "curl", "wget", "pwsh", "powershell.exe", "systemctl", "crontab", "ssh")
+      or InitiatingProcessFileName in~ ("npm", "npm.cmd", "pip", "pip3", "python", "python3", "node", "cargo")
+    | where ProcessCommandLine has_any (PersistenceTokens)
+    | extend CampaignSignal = iff(ProcessCommandLine has_any (CampaignTokens), "CampaignLinked", "Behavioral")
+    | project TimeGenerated, DeviceName, DeviceId, AccountName, FileName, InitiatingProcessFileName,
+            ProcessCommandLine, InitiatingProcessCommandLine, CampaignSignal
+  | order by TimeGenerated desc
+entityMappings:
+  - entityType: Host
+    fieldMappings:
+      - identifier: HostName
+        columnName: DeviceName
+  - entityType: Account
+    fieldMappings:
+      - identifier: Name
+        columnName: AccountName
+version: 1.0.0

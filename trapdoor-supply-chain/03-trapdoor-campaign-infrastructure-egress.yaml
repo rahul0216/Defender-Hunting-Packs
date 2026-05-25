@@ -1,0 +1,44 @@
+id: 25b90196-b5c2-4d10-9f2d-95ad26cfdba1
+name: TrapDoor campaign infrastructure egress
+description: |
+  Detects endpoint network connections to TrapDoor-linked infrastructure and correlates them with suspicious process context.
+description-detailed: |
+  This query hunts for outbound traffic to campaign-linked domains and highlights potentially suspicious parent and child process activity associated with software installation or script execution.
+requiredDataConnectors:
+  - connectorId: MicrosoftThreatProtection
+    dataTypes:
+      - DeviceNetworkEvents
+tactics:
+  - CommandAndControl
+  - Exfiltration
+relevantTechniques:
+  - T1071.001
+  - T1041
+tags:
+  - Supply chain
+  - TrapDoor
+  - Infrastructure
+  - C2
+query: |
+  let StartTime = todatetime('{{StartTimeISO}}');
+  let EndTime = todatetime('{{EndTimeISO}}');
+  let Domains = dynamic(["ddjidd564.github.io", "github.io/defi-security-best-practices"]);
+  let SuspiciousProcs = dynamic(["node", "node.exe", "python", "python.exe", "python3", "python3.exe", "npm", "npm.cmd", "pip", "pip3", "cargo", "bash", "sh", "pwsh", "powershell.exe"]);
+  DeviceNetworkEvents
+  | where TimeGenerated between (StartTime .. EndTime)
+  | where RemoteUrl has_any (Domains) or InitiatingProcessCommandLine has_any (Domains)
+  | extend IsSuspiciousProcess = iff(InitiatingProcessFileName in~ (SuspiciousProcs), true, false)
+  | project TimeGenerated, DeviceName, DeviceId, LocalIP, RemoteIP, RemotePort, RemoteUrl,
+            InitiatingProcessFileName, InitiatingProcessCommandLine, InitiatingProcessId, IsSuspiciousProcess,
+            ActionType, Protocol
+  | order by TimeGenerated desc
+entityMappings:
+  - entityType: Host
+    fieldMappings:
+      - identifier: HostName
+        columnName: DeviceName
+  - entityType: IP
+    fieldMappings:
+      - identifier: Address
+        columnName: RemoteIP
+version: 1.0.0

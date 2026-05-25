@@ -1,0 +1,45 @@
+id: 356c5916-7461-473c-bd3d-8ce0b53c8fa2
+name: TrapDoor AI prompt-file persistence on developer hosts
+description: |
+  Detects suspicious creation or modification of .cursorrules and CLAUDE.md files that may be used for AI-assistant prompt injection persistence.
+description-detailed: |
+  TrapDoor reporting described persistence through AI tool instruction files. This hunt flags file writes to those artifacts by non-editor processes and package execution chains.
+requiredDataConnectors:
+  - connectorId: MicrosoftThreatProtection
+    dataTypes:
+      - DeviceFileEvents
+tactics:
+  - Persistence
+  - DefenseEvasion
+relevantTechniques:
+  - T1546
+  - T1036
+tags:
+  - Supply chain
+  - TrapDoor
+  - Prompt injection
+  - Persistence
+query: |
+  let StartTime = todatetime('{{StartTimeISO}}');
+  let EndTime = todatetime('{{EndTimeISO}}');
+  let TargetFiles = dynamic([".cursorrules", "claude.md"]);
+  let SuspiciousWriters = dynamic(["node.exe", "node", "python.exe", "python", "python3", "python3.exe", "npm", "npm.cmd", "pip", "pip3", "bash", "sh", "pwsh", "powershell.exe", "curl", "wget", "git"]);
+  DeviceFileEvents
+  | where TimeGenerated between (StartTime .. EndTime)
+  | where FileName in~ (TargetFiles)
+  | where ActionType in~ ("FileCreated", "FileModified", "FileRenamed")
+  | where InitiatingProcessFileName in~ (SuspiciousWriters)
+      or InitiatingProcessCommandLine has_any ("trap-core.js", "defi-security-best-practices", "p-2024-001", "node -e", "npm install", "pip install")
+  | project TimeGenerated, DeviceName, DeviceId, ActionType, FileName, FolderPath,
+            InitiatingProcessFileName, InitiatingProcessCommandLine, InitiatingProcessAccountName, SHA1
+  | order by TimeGenerated desc
+entityMappings:
+  - entityType: Host
+    fieldMappings:
+      - identifier: HostName
+        columnName: DeviceName
+  - entityType: File
+    fieldMappings:
+      - identifier: Name
+        columnName: FileName
+version: 1.0.0

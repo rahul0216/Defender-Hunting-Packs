@@ -1,0 +1,57 @@
+id: 7d6dd25f-f12f-4d9b-8cfb-3129e964c2f4
+name: TrapDoor suspicious package install wave
+description: |
+  Detects likely TrapDoor package installation activity by spotting suspicious npm, PyPI, and Crates package names in package-manager command lines.
+description-detailed: |
+  This hunt identifies endpoint process activity where package manager tooling installs package names associated with the TrapDoor supply chain campaign.
+requiredDataConnectors:
+  - connectorId: MicrosoftThreatProtection
+    dataTypes:
+      - DeviceProcessEvents
+tactics:
+  - InitialAccess
+  - Execution
+relevantTechniques:
+  - T1195.001
+  - T1059
+tags:
+  - Supply chain
+  - TrapDoor
+  - npm
+  - PyPI
+  - Crates
+query: |
+  let StartTime = todatetime('{{StartTimeISO}}');
+  let EndTime = todatetime('{{EndTimeISO}}');
+  let TrapDoorPackages = dynamic([
+    "async-pipeline-builder", "build-scripts-utils", "chain-key-validator", "crypto-credential-scanner",
+    "defi-env-auditor", "defi-threat-scanner", "deployment-key-auditor", "dev-env-bootstrapper",
+    "eth-wallet-sentinel", "llm-context-compressor", "mnemonic-safety-check", "model-switch-router",
+    "node-setup-helpers", "project-init-tools", "prompt-engineering-toolkit", "solidity-deploy-guard",
+    "token-usage-tracker", "wallet-backup-verifier", "wallet-security-checker", "web3-secrets-detector",
+    "workspace-config-loader", "cryptowallet-safety", "data-pipeline-check", "defi-risk-scanner",
+    "env-loader-cli", "eth-security-auditor", "git-config-sync", "solidity-build-guard",
+    "move-analyzer-build", "move-compiler-tools", "move-project-builder", "sui-framework-helpers",
+    "sui-move-build-helper", "sui-sdk-build-utils"
+  ]);
+  DeviceProcessEvents
+  | where TimeGenerated between (StartTime .. EndTime)
+  | where FileName in~ ("npm", "npm.cmd", "pnpm", "pnpm.cmd", "yarn", "yarn.cmd", "pip", "pip3", "python", "python3", "cargo")
+  | where isnotempty(ProcessCommandLine)
+  | where ProcessCommandLine has_any (TrapDoorPackages)
+  | extend MatchedPackage = extract(@"(?i)(async-pipeline-builder|build-scripts-utils|chain-key-validator|crypto-credential-scanner|defi-env-auditor|defi-threat-scanner|deployment-key-auditor|dev-env-bootstrapper|eth-wallet-sentinel|llm-context-compressor|mnemonic-safety-check|model-switch-router|node-setup-helpers|project-init-tools|prompt-engineering-toolkit|solidity-deploy-guard|token-usage-tracker|wallet-backup-verifier|wallet-security-checker|web3-secrets-detector|workspace-config-loader|cryptowallet-safety|data-pipeline-check|defi-risk-scanner|env-loader-cli|eth-security-auditor|git-config-sync|solidity-build-guard|move-analyzer-build|move-compiler-tools|move-project-builder|sui-framework-helpers|sui-move-build-helper|sui-sdk-build-utils)", 1, ProcessCommandLine)
+  | summarize InstallEvents=count(), FirstSeen=min(TimeGenerated), LastSeen=max(TimeGenerated),
+              MatchedPackages=make_set(MatchedPackage, 50), SampleCommands=make_set(ProcessCommandLine, 10)
+      by DeviceName, DeviceId, AccountName, InitiatingProcessAccountName
+  | extend TimeGenerated = FirstSeen
+  | order by InstallEvents desc, TimeGenerated desc
+entityMappings:
+  - entityType: Host
+    fieldMappings:
+      - identifier: HostName
+        columnName: DeviceName
+  - entityType: Account
+    fieldMappings:
+      - identifier: Name
+        columnName: AccountName
+version: 1.0.0

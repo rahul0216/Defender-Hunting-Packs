@@ -1,0 +1,65 @@
+id: e584f0c8-2b86-4d27-9b2f-7484d3fb3b5c
+name: TrapDoor git hook persistence after package install
+description: |
+  Detects potential persistence where suspicious package installation activity is followed by .git/hooks modification on the same host.
+description-detailed: |
+  TrapDoor reporting describes persistence via Git hooks. This query correlates package install events with near-term Git hook file writes.
+requiredDataConnectors:
+  - connectorId: MicrosoftThreatProtection
+    dataTypes:
+      - DeviceProcessEvents
+      - DeviceFileEvents
+tactics:
+  - Persistence
+  - DefenseEvasion
+relevantTechniques:
+  - T1554
+  - T1195.001
+tags:
+  - Supply chain
+  - TrapDoor
+  - Git hooks
+query: |
+  let StartTime = todatetime('{{StartTimeISO}}');
+  let EndTime = todatetime('{{EndTimeISO}}');
+  let TrapDoorPackages = dynamic([
+    "async-pipeline-builder", "build-scripts-utils", "chain-key-validator", "crypto-credential-scanner",
+    "defi-env-auditor", "defi-threat-scanner", "deployment-key-auditor", "dev-env-bootstrapper",
+    "eth-wallet-sentinel", "llm-context-compressor", "mnemonic-safety-check", "model-switch-router",
+    "node-setup-helpers", "project-init-tools", "prompt-engineering-toolkit", "solidity-deploy-guard",
+    "token-usage-tracker", "wallet-backup-verifier", "wallet-security-checker", "web3-secrets-detector",
+    "workspace-config-loader", "cryptowallet-safety", "data-pipeline-check", "defi-risk-scanner",
+    "env-loader-cli", "eth-security-auditor", "git-config-sync", "solidity-build-guard",
+    "move-analyzer-build", "move-compiler-tools", "move-project-builder", "sui-framework-helpers",
+    "sui-move-build-helper", "sui-sdk-build-utils"
+  ]);
+  let Installs =
+    DeviceProcessEvents
+    | where TimeGenerated between (StartTime .. EndTime)
+    | where FileName in~ ("npm", "npm.cmd", "pnpm", "pnpm.cmd", "yarn", "yarn.cmd", "pip", "pip3", "python", "python3", "cargo")
+    | where isnotempty(ProcessCommandLine)
+    | where ProcessCommandLine has_any (TrapDoorPackages)
+    | project InstallTime=TimeGenerated, DeviceId, DeviceName, AccountName, InstallCmd=ProcessCommandLine;
+  let HookWrites =
+    DeviceFileEvents
+    | where TimeGenerated between (StartTime .. (EndTime + 2h))
+    | where FolderPath has "\\.git\\hooks\\" or FolderPath has "/.git/hooks/"
+    | where ActionType in~ ("FileCreated", "FileModified", "FileRenamed")
+    | project HookTime=TimeGenerated, DeviceId, HookAction=ActionType, FolderPath, FileName,
+              InitiatingProcessFileName, InitiatingProcessCommandLine, InitiatingProcessAccountName;
+  Installs
+  | join kind=innerunique HookWrites on DeviceId
+  | where HookTime between (InstallTime .. (InstallTime + 2h))
+  | project TimeGenerated=InstallTime, HookTime, DeviceName, AccountName, InstallCmd,
+            HookAction, FolderPath, FileName, InitiatingProcessFileName, InitiatingProcessCommandLine
+  | order by HookTime desc
+entityMappings:
+  - entityType: Host
+    fieldMappings:
+      - identifier: HostName
+        columnName: DeviceName
+  - entityType: File
+    fieldMappings:
+      - identifier: Name
+        columnName: FileName
+version: 1.0.0
