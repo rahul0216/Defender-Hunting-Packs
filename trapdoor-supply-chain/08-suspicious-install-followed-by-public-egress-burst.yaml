@@ -1,0 +1,66 @@
+id: 7239e4e8-ec6c-451f-a8f8-2c94f59ca4fb
+name: TrapDoor suspicious install followed by public egress burst
+description: |
+  Detects potential data staging or exfiltration by correlating suspicious package install activity with a short-window burst of public egress.
+description-detailed: |
+  This hunt links TrapDoor-associated package installation process activity to rapid public outbound connections from the same host.
+requiredDataConnectors:
+  - connectorId: MicrosoftThreatProtection
+    dataTypes:
+      - DeviceProcessEvents
+      - DeviceNetworkEvents
+tactics:
+  - Exfiltration
+  - CommandAndControl
+relevantTechniques:
+  - T1041
+  - T1071.001
+tags:
+  - Supply chain
+  - TrapDoor
+  - Egress burst
+query: |
+  let StartTime = todatetime('{{StartTimeISO}}');
+  let EndTime = todatetime('{{EndTimeISO}}');
+  let TrapDoorPackages = dynamic([
+    "async-pipeline-builder", "build-scripts-utils", "chain-key-validator", "crypto-credential-scanner",
+    "defi-env-auditor", "defi-threat-scanner", "deployment-key-auditor", "dev-env-bootstrapper",
+    "eth-wallet-sentinel", "llm-context-compressor", "mnemonic-safety-check", "model-switch-router",
+    "node-setup-helpers", "project-init-tools", "prompt-engineering-toolkit", "solidity-deploy-guard",
+    "token-usage-tracker", "wallet-backup-verifier", "wallet-security-checker", "web3-secrets-detector",
+    "workspace-config-loader", "cryptowallet-safety", "data-pipeline-check", "defi-risk-scanner",
+    "env-loader-cli", "eth-security-auditor", "git-config-sync", "solidity-build-guard",
+    "move-analyzer-build", "move-compiler-tools", "move-project-builder", "sui-framework-helpers",
+    "sui-move-build-helper", "sui-sdk-build-utils"
+  ]);
+  let SuspiciousInstall =
+    DeviceProcessEvents
+    | where TimeGenerated between (StartTime .. EndTime)
+    | where FileName in~ ("npm", "npm.cmd", "pnpm", "pnpm.cmd", "yarn", "yarn.cmd", "pip", "pip3", "python", "python3", "cargo")
+    | where isnotempty(ProcessCommandLine)
+    | where ProcessCommandLine has_any (TrapDoorPackages)
+    | project InstallTime=TimeGenerated, DeviceId, DeviceName, AccountName, InstallCmd=ProcessCommandLine;
+  let PublicEgress =
+    DeviceNetworkEvents
+    | where TimeGenerated between (StartTime .. (EndTime + 30m))
+    | where RemoteIPType == "Public" or isnotempty(RemoteUrl)
+    | where ActionType !~ "ConnectionFailed"
+    | summarize EgressCount=count(), Destinations=dcount(RemoteIP), RemoteIps=make_set(RemoteIP, 50), Urls=make_set(RemoteUrl, 20)
+      by DeviceId, EgressWindow=bin(TimeGenerated, 10m);
+  SuspiciousInstall
+  | join kind=innerunique PublicEgress on DeviceId
+  | where EgressWindow between (InstallTime .. (InstallTime + 30m))
+  | where EgressCount >= 8 or Destinations >= 5
+  | project TimeGenerated=InstallTime, EgressWindow, DeviceName, AccountName, InstallCmd,
+            EgressCount, Destinations, RemoteIps, Urls
+  | order by TimeGenerated desc
+entityMappings:
+  - entityType: Host
+    fieldMappings:
+      - identifier: HostName
+        columnName: DeviceName
+  - entityType: Account
+    fieldMappings:
+      - identifier: Name
+        columnName: AccountName
+version: 1.0.0

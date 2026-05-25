@@ -1,0 +1,46 @@
+id: e742a49e-ff70-4d40-a8f3-df98e0b8a7fd
+name: TrapDoor Python import to node -e remote payload chain
+description: |
+  Detects Python-driven process chains that invoke node with inline JavaScript execution and campaign-linked remote payload indicators.
+description-detailed: |
+  TrapDoor-linked PyPI packages were reported to auto-execute on import and delegate payload execution through node -e. This hunt looks for that uncommon execution pattern.
+requiredDataConnectors:
+  - connectorId: MicrosoftThreatProtection
+    dataTypes:
+      - DeviceProcessEvents
+tactics:
+  - Execution
+  - DefenseEvasion
+relevantTechniques:
+  - T1059.006
+  - T1059.007
+tags:
+  - Supply chain
+  - TrapDoor
+  - Python
+  - Node
+query: |
+  let StartTime = todatetime('{{StartTimeISO}}');
+  let EndTime = todatetime('{{EndTimeISO}}');
+  let Indicators = dynamic(["ddjidd564.github.io", "defi-security-best-practices", "trap-core.js", "node -e", "p-2024-001"]);
+  DeviceProcessEvents
+  | where TimeGenerated between (StartTime .. EndTime)
+  | where FileName in~ ("node", "node.exe")
+  | where ProcessCommandLine has "-e" or ProcessCommandLine has "eval"
+  | where InitiatingProcessFileName in~ ("python", "python.exe", "python3", "python3.exe", "pip", "pip3")
+      or InitiatingProcessCommandLine has_any ("python", "pip install", "import ")
+  | where ProcessCommandLine has_any (Indicators) or InitiatingProcessCommandLine has_any (Indicators)
+  | project TimeGenerated, DeviceName, DeviceId, AccountName,
+            InitiatingProcessFileName, InitiatingProcessCommandLine, FileName, ProcessCommandLine,
+            InitiatingProcessId, ProcessId, SHA1, MD5
+  | order by TimeGenerated desc
+entityMappings:
+  - entityType: Host
+    fieldMappings:
+      - identifier: HostName
+        columnName: DeviceName
+  - entityType: Account
+    fieldMappings:
+      - identifier: Name
+        columnName: AccountName
+version: 1.0.0

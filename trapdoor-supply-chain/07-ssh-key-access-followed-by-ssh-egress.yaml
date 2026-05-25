@@ -1,0 +1,58 @@
+id: 2e2318b4-0989-4cd8-8674-3e912af6dd78
+name: TrapDoor SSH key access followed by SSH egress
+description: |
+  Detects possible SSH-based lateral movement by correlating SSH key file access with near-term outbound SSH activity.
+description-detailed: |
+  TrapDoor reporting indicated SSH key theft and SSH propagation behavior. This query links suspicious key-path file activity to outbound port 22 connections.
+requiredDataConnectors:
+  - connectorId: MicrosoftThreatProtection
+    dataTypes:
+      - DeviceFileEvents
+      - DeviceNetworkEvents
+tactics:
+  - CredentialAccess
+  - LateralMovement
+relevantTechniques:
+  - T1552.001
+  - T1021.004
+tags:
+  - Supply chain
+  - TrapDoor
+  - SSH
+query: |
+  let StartTime = todatetime('{{StartTimeISO}}');
+  let EndTime = todatetime('{{EndTimeISO}}');
+  let KeyAccess =
+    DeviceFileEvents
+    | where TimeGenerated between (StartTime .. EndTime)
+    | extend FilePath = strcat(tostring(FolderPath), "\\", tostring(FileName))
+    | where FilePath has_any ("\\.ssh\\id_rsa", "\\.ssh\\id_ed25519", "/.ssh/id_rsa", "/.ssh/id_ed25519", "authorized_keys")
+    | where ActionType in~ ("FileRead", "FileCreated", "FileModified")
+    | where InitiatingProcessFileName !in~ ("ssh-agent", "sshd", "code.exe", "git.exe")
+    | project KeyTime=TimeGenerated, DeviceId, DeviceName, AccountName=InitiatingProcessAccountName, FileName, FolderPath,
+              ActionType, KeyProcess=InitiatingProcessFileName, KeyCommand=InitiatingProcessCommandLine;
+  let SshEgress =
+    DeviceNetworkEvents
+    | where TimeGenerated between (StartTime .. (EndTime + 30m))
+    | where RemotePort == 22
+    | where ActionType !~ "ConnectionFailed"
+    | where isnotempty(RemoteIP)
+    | project EgressTime=TimeGenerated, DeviceId, RemoteIP, RemotePort, RemoteUrl,
+            EgressProcess=InitiatingProcessFileName, EgressCommand=InitiatingProcessCommandLine;
+  KeyAccess
+      | join kind=innerunique SshEgress on DeviceId
+  | where EgressTime between (KeyTime .. (KeyTime + 30m))
+  | project TimeGenerated=KeyTime, EgressTime, DeviceName, AccountName,
+          FileName, FolderPath, ActionType, KeyProcess, KeyCommand,
+          EgressProcess, EgressCommand, RemoteIP, RemotePort, RemoteUrl
+  | order by EgressTime desc
+entityMappings:
+  - entityType: Host
+    fieldMappings:
+      - identifier: HostName
+        columnName: DeviceName
+  - entityType: IP
+    fieldMappings:
+      - identifier: Address
+        columnName: RemoteIP
+version: 1.0.0
