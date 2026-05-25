@@ -1,8 +1,8 @@
-# Sentinel Hunting Packs
+# Microsoft Defender Hunting Packs
 
-Welcome to Sentinel Hunting Packs.
+Welcome to Defender Hunting Packs.
 
-This repository contains practical Microsoft Sentinel hunting packs designed to support proactive threat hunting, investigation, and detection engineering workflows. Each pack includes focused KQL hunting rules and supporting documentation that you can tune for your environment.
+This repository contains practical Microsoft Defender XDR and Sentinel hunting packs designed to support proactive threat hunting, investigation, and detection engineering workflows. Each pack includes focused KQL hunting rules and supporting documentation that you can tune for your environment.
 
 ## Hunting Packs
 
