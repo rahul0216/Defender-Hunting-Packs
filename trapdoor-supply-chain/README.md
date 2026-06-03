@@ -5,6 +5,7 @@ author: rahul0216
 date: 2026-05-25
 keywords:
   - microsoft sentinel
+  - microsoft defender xdr
   - hunting queries
   - trapdoor
   - supply chain
@@ -42,12 +43,11 @@ The rules focus on:
 
 ## Usage
 
-1. Set `StartTimeISO` and `EndTimeISO` to a bounded hunt window.
-2. Run Rule 1 and Rule 3 first to establish candidate affected hosts.
-3. Pivot into Rules 2, 4, 5, and 6 to validate execution and persistence context.
-4. Run Rules 7 and 8 to assess lateral movement and probable data movement risk.
-5. Prioritize hosts where two or more rules trigger in close time proximity.
-6. Add environment-specific allowlists before operationalizing as scheduled analytics.
+1. Run Rule 1 and Rule 3 first to establish candidate affected hosts.
+2. Pivot into Rules 2, 4, 5, and 6 to validate execution and persistence context.
+3. Run Rules 7 and 8 to assess lateral movement and probable data movement risk.
+4. Prioritize hosts where two or more rules trigger in close time proximity.
+5. Add environment-specific allowlists before operationalizing as scheduled analytics.
 
 ## Detection Caveats FP and FN
 

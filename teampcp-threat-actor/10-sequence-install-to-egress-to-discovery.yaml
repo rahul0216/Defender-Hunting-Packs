@@ -1,0 +1,87 @@
+id: 7f0ebd95-a430-43c7-b904-5894e6682810
+name: TeamPCP threat actor sequence install to egress to discovery
+description: |
+  Correlates suspicious process execution with TeamPCP-linked egress and follow-on cloud discovery signals.
+description-detailed: |
+  This hunt performs sequence-style correlation across endpoint process and network
+  telemetry, then enriches with cloud discovery activity by identity and time window.
+requiredDataConnectors:
+  - connectorId: MicrosoftThreatProtection
+    dataTypes:
+      - DeviceProcessEvents
+      - DeviceNetworkEvents
+      - CloudAppEvents
+tactics:
+  - InitialAccess
+  - CommandAndControl
+  - Discovery
+relevantTechniques:
+  - T1195.001
+  - T1071.001
+  - T1087
+tags:
+  - TeamPCP
+  - Correlation
+  - Sequence
+query: |
+  let StartTime = ago(1d);
+  let EndTime = now();
+  let IOC_Domains = dynamic([
+    "scan.aquasecurtiy.org", "checkmarx.zone", "models.litellm.cloud",
+    "audit.checkmarx.cx", "tdtqy-oyaaa-aaaae-af2dq-cai.raw.icp0.io"
+  ]);
+  let SuspiciousInstallTerms = dynamic([
+    "preinstall", "bun", "bw_setup.js", "checkmarx-util-1.0.4.tgz",
+    "kubectl get secrets --all-namespaces", "169.254.169.254", "tpcp.tar.gz"
+  ]);
+  let DiscoveryActions = dynamic([
+    "GetCallerIdentity", "ListUsers", "ListRoles", "DescribeInstances", "ListBuckets", "ListSecrets"
+  ]);
+  let ProcSignals =
+    DeviceProcessEvents
+    | where TimeGenerated between (StartTime .. EndTime)
+    | where isnotempty(ProcessCommandLine)
+    | where ProcessCommandLine has_any (SuspiciousInstallTerms)
+    | summarize ProcFirst=min(TimeGenerated), ProcLast=max(TimeGenerated), ProcCount=count(),
+                ProcSamples=make_set(ProcessCommandLine, 10)
+        by DeviceId, DeviceName, AccountName;
+  let NetSignals =
+    DeviceNetworkEvents
+    | where TimeGenerated between (StartTime .. EndTime)
+    | where RemoteUrl has_any (IOC_Domains) or InitiatingProcessCommandLine has_any (IOC_Domains)
+    | summarize NetFirst=min(TimeGenerated), NetLast=max(TimeGenerated), NetCount=count(),
+                UrlSamples=make_set(RemoteUrl, 10)
+        by DeviceId, DeviceName, InitiatingProcessAccountName;
+  let CloudSignals =
+    CloudAppEvents
+    | where TimeGenerated between (StartTime .. EndTime)
+    | extend Action = tostring(column_ifexists("ActionType", ""))
+    | where Action has_any (DiscoveryActions)
+    | extend Identity = coalesce(
+        tostring(column_ifexists("AccountDisplayName", "")),
+        tostring(column_ifexists("AccountObjectId", "")),
+        tostring(column_ifexists("UserId", ""))
+      )
+    | summarize CloudFirst=min(TimeGenerated), CloudLast=max(TimeGenerated), CloudCount=count(),
+                CloudActions=make_set(Action, 20)
+        by Identity;
+  ProcSignals
+  | join kind=inner NetSignals on DeviceId
+  | extend IdentityHint = iff(isnotempty(AccountName), AccountName, InitiatingProcessAccountName)
+  | join kind=leftouter CloudSignals on $left.IdentityHint == $right.Identity
+  | where NetFirst >= ProcFirst and NetFirst <= ProcLast + 1d
+  | project DeviceName=coalesce(DeviceName, DeviceName1), DeviceId, IdentityHint,
+            ProcFirst, ProcLast, ProcCount, ProcSamples,
+            NetFirst, NetLast, NetCount, UrlSamples,
+            CloudFirst, CloudLast, CloudCount, CloudActions
+  | order by ProcFirst desc
+entityMappings:
+  - entityType: Host
+    fieldMappings:
+      - identifier: HostName
+        columnName: DeviceName
+  - entityType: Account
+    fieldMappings:
+      - identifier: Name
+        columnName: IdentityHint
+version: 1.0.0

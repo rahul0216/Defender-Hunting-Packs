@@ -8,7 +8,8 @@ This repository contains practical Microsoft Defender XDR and Sentinel hunting p
 
 | Hunting pack | Focus area | Path |
 |---|---|---|
-| TrapDoor Supply Chain | Threat hunting for TrapDoor supply chain activities across developer and package ecosystems | [trapdoor-supply-chain](trapdoor-supply-chain/README.md) |
+| TeamPCP Threat Actor | Threat hunting for TeamPCP activity across supply chain compromise, CI/CD credential theft, cloud post-compromise discovery, and persistence behavior | [teampcp-threat-actor](teampcp-threat-actor) |
+| TrapDoor Supply Chain | Threat hunting for TrapDoor supply chain activities across developer and package ecosystems | [trapdoor-supply-chain](trapdoor-supply-chain) |
 
 ## Disclaimer
 

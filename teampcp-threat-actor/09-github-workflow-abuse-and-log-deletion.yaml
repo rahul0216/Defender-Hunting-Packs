@@ -1,0 +1,53 @@
+id: 8ec34d7d-8fca-4796-b6b9-3b466c77f009
+name: TeamPCP threat actor GitHub workflow abuse and log deletion
+description: |
+  Detects suspicious GitHub workflow activity and workflow-log deletion patterns associated with TeamPCP operations.
+description-detailed: |
+  This hunt identifies suspicious workflow creation or execution indicators,
+  high-volume clone signals, and workflow log deletion events in cloud app telemetry.
+requiredDataConnectors:
+  - connectorId: MicrosoftThreatProtection
+    dataTypes:
+      - CloudAppEvents
+tactics:
+  - Execution
+  - DefenseEvasion
+  - Collection
+relevantTechniques:
+  - T1578
+  - T1070
+  - T1213
+tags:
+  - TeamPCP
+  - GitHub
+  - Workflow abuse
+  - Anti-forensics
+query: |
+  let StartTime = ago(1d);
+  let EndTime = now();
+  let SuspiciousActions = dynamic([
+    "workflow", "workflow_run", "workflow_dispatch", "delete_workflow_run_logs",
+    "git.clone", "repo.clone", "create pull request", "pull_request"
+  ]);
+  CloudAppEvents
+  | where TimeGenerated between (StartTime .. EndTime)
+  | extend App = tostring(column_ifexists("Application", ""))
+  | extend Action = tostring(column_ifexists("ActionType", ""))
+  | extend Raw = tostring(column_ifexists("RawActivityData", ""))
+  | where App has "GitHub" or Raw has "github"
+  | where Action has_any (SuspiciousActions) or Raw has_any (SuspiciousActions)
+  | extend Identity = coalesce(
+      tostring(column_ifexists("AccountDisplayName", "")),
+      tostring(column_ifexists("AccountObjectId", "")),
+      tostring(column_ifexists("UserId", "unknown"))
+    )
+  | summarize EventCount=count(), FirstSeen=min(TimeGenerated), LastSeen=max(TimeGenerated),
+              Actions=make_set(Action, 30), SampleRaw=make_set(Raw, 10)
+      by Identity
+  | order by EventCount desc, FirstSeen desc
+entityMappings:
+  - entityType: Account
+    fieldMappings:
+      - identifier: Name
+        columnName: Identity
+version: 1.0.0

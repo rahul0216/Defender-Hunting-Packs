@@ -1,0 +1,47 @@
+id: 966df352-cf3b-4d57-8eb8-77d193bd3f05
+name: TeamPCP threat actor persistence artifacts on Linux hosts
+description: |
+  Detects Linux file artifacts associated with TeamPCP persistence behavior.
+description-detailed: |
+  This hunt identifies suspicious file and service artifacts linked to sysmon and pgmon
+  persistence techniques described in TeamPCP campaign reporting.
+requiredDataConnectors:
+  - connectorId: MicrosoftThreatProtection
+    dataTypes:
+      - DeviceFileEvents
+tactics:
+  - Persistence
+relevantTechniques:
+  - T1543.002
+  - T1053.003
+tags:
+  - TeamPCP
+  - Persistence
+  - Linux
+query: |
+  let StartTime = ago(1d);
+  let EndTime = now();
+  let PersistenceArtifacts = dynamic([
+    "~/.config/sysmon/", "sysmon.py", "sysmon.service", "pgmon.service", "/tmp/pglog", "/tmp/.pg_state"
+  ]);
+  DeviceFileEvents
+  | where TimeGenerated between (StartTime .. EndTime)
+  | where FolderPath has_any (PersistenceArtifacts)
+      or FileName has_any (PersistenceArtifacts)
+      or InitiatingProcessCommandLine has_any (PersistenceArtifacts)
+  | summarize EventCount=count(), FirstSeen=min(TimeGenerated), LastSeen=max(TimeGenerated),
+              FileNames=make_set(FileName, 30), Folders=make_set(FolderPath, 30),
+              SampleCommands=make_set(InitiatingProcessCommandLine, 15)
+      by DeviceName, DeviceId, InitiatingProcessAccountName, ActionType
+  | extend TimeGenerated = FirstSeen
+  | order by EventCount desc, TimeGenerated desc
+entityMappings:
+  - entityType: Host
+    fieldMappings:
+      - identifier: HostName
+        columnName: DeviceName
+  - entityType: Account
+    fieldMappings:
+      - identifier: Name
+        columnName: InitiatingProcessAccountName
+version: 1.0.0

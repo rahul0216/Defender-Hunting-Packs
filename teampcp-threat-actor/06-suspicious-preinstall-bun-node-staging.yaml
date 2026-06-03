@@ -1,0 +1,49 @@
+id: 8cd2444e-e129-4174-9ad9-b6272f111d06
+name: TeamPCP threat actor suspicious preinstall and bun node staging
+description: |
+  Detects suspicious package preinstall behavior and staged JavaScript execution using bun or node.
+description-detailed: |
+  This hunt identifies execution chains where npm ecosystem install workflows
+  trigger suspicious bun or node payload staging linked to TeamPCP reporting.
+requiredDataConnectors:
+  - connectorId: MicrosoftThreatProtection
+    dataTypes:
+      - DeviceProcessEvents
+tactics:
+  - Execution
+  - Persistence
+relevantTechniques:
+  - T1059.007
+  - T1195.001
+tags:
+  - TeamPCP
+  - npm
+  - Bun
+  - Preinstall
+query: |
+  let StartTime = ago(1d);
+  let EndTime = now();
+  let SuspiciousTerms = dynamic([
+    "preinstall", "bun", "bw_setup.js", "bw1.js", "__DAEMONIZED=1",
+    "checkmarx-util-1.0.4.tgz", "node ", "npm install", "yarn add", "pnpm add"
+  ]);
+  DeviceProcessEvents
+  | where TimeGenerated between (StartTime .. EndTime)
+  | where isnotempty(ProcessCommandLine)
+  | where FileName in~ ("node", "node.exe", "bun", "bun.exe", "npm", "npm.cmd", "pnpm", "yarn")
+  | where ProcessCommandLine has_any (SuspiciousTerms)
+  | summarize EventCount=count(), FirstSeen=min(TimeGenerated), LastSeen=max(TimeGenerated),
+              Commands=make_set(ProcessCommandLine, 20)
+      by DeviceName, DeviceId, AccountName, FileName, InitiatingProcessFileName, InitiatingProcessParentFileName
+  | extend TimeGenerated = FirstSeen
+  | order by EventCount desc, TimeGenerated desc
+entityMappings:
+  - entityType: Host
+    fieldMappings:
+      - identifier: HostName
+        columnName: DeviceName
+  - entityType: Account
+    fieldMappings:
+      - identifier: Name
+        columnName: AccountName
+version: 1.0.0

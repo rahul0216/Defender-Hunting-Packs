@@ -1,0 +1,57 @@
+id: c8d8e40f-21e1-4e93-9e0a-bca17a26fd01
+name: TeamPCP threat actor known C2 and infrastructure egress
+description: |
+  Detects endpoint network connections to TeamPCP-linked campaign infrastructure.
+description-detailed: |
+  This hunt identifies outbound traffic to known TeamPCP domains and IP indicators and
+  surfaces process context for triage.
+requiredDataConnectors:
+  - connectorId: MicrosoftThreatProtection
+    dataTypes:
+      - DeviceNetworkEvents
+tactics:
+  - CommandAndControl
+  - Exfiltration
+relevantTechniques:
+  - T1071.001
+  - T1041
+tags:
+  - TeamPCP
+  - Threat actor
+  - C2
+  - Infrastructure
+query: |
+  let StartTime = ago(1d);
+  let EndTime = now();
+  let IOC_Domains = dynamic([
+    "scan.aquasecurtiy.org", "checkmarx.zone", "models.litellm.cloud",
+    "audit.checkmarx.cx", "tdtqy-oyaaa-aaaae-af2dq-cai.raw.icp0.io",
+    "plug-tab-protective-relay.trycloudflare.com"
+  ]);
+  let IOC_IPs = dynamic([
+    "45.148.10.212", "83.142.209.11", "94.154.172.43", "209.159.147.239",
+    "170.62.100.245", "154.47.29.12", "103.75.11.59"
+  ]);
+  DeviceNetworkEvents
+  | where TimeGenerated between (StartTime .. EndTime)
+  | where RemoteUrl has_any (IOC_Domains)
+      or RemoteIP in (IOC_IPs)
+      or InitiatingProcessCommandLine has_any (IOC_Domains)
+  | extend MatchedDomain = iff(RemoteUrl has_any (IOC_Domains), RemoteUrl, "")
+  | extend MatchedIP = iff(RemoteIP in (IOC_IPs), RemoteIP, "")
+  | summarize EventCount=count(), FirstSeen=min(TimeGenerated), LastSeen=max(TimeGenerated),
+              MatchedDomains=make_set(MatchedDomain, 20), MatchedIPs=make_set(MatchedIP, 20),
+              SampleUrls=make_set(RemoteUrl, 20), SampleCommands=make_set(InitiatingProcessCommandLine, 10)
+      by DeviceName, DeviceId, InitiatingProcessFileName, InitiatingProcessAccountName
+  | extend TimeGenerated = FirstSeen
+  | order by EventCount desc, TimeGenerated desc
+entityMappings:
+  - entityType: Host
+    fieldMappings:
+      - identifier: HostName
+        columnName: DeviceName
+  - entityType: IP
+    fieldMappings:
+      - identifier: Address
+        columnName: MatchedIP
+version: 1.0.0

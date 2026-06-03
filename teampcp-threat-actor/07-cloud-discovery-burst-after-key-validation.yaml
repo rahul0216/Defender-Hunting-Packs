@@ -1,0 +1,57 @@
+id: b1e787f9-07e5-4fef-8964-822267eb7d07
+name: TeamPCP threat actor cloud discovery burst after key validation
+description: |
+  Detects rapid cloud discovery activity patterns that can follow key or token validation.
+description-detailed: |
+  This hunt identifies concentrated cloud control-plane discovery operations such as
+  List, Describe, and identity-check actions that match TeamPCP post-compromise behavior.
+requiredDataConnectors:
+  - connectorId: MicrosoftThreatProtection
+    dataTypes:
+      - CloudAppEvents
+tactics:
+  - Discovery
+  - CredentialAccess
+relevantTechniques:
+  - T1087
+  - T1526
+  - T1580
+tags:
+  - TeamPCP
+  - Cloud discovery
+  - Post compromise
+query: |
+  let StartTime = ago(1d);
+  let EndTime = now();
+  let DiscoveryActions = dynamic([
+    "GetCallerIdentity", "ListUsers", "ListRoles", "ListAttachedUserPolicies",
+    "DescribeInstances", "ListFunctions", "DescribeDBInstances", "ListHostedZones",
+    "ListBuckets", "GetBucketPublicAccessBlock", "ListClusters", "ListTaskDefinitions",
+    "ListTasks", "DescribeTasks", "ListSecrets"
+  ]);
+  CloudAppEvents
+  | where TimeGenerated between (StartTime .. EndTime)
+  | extend Action = tostring(column_ifexists("ActionType", ""))
+  | where Action has_any (DiscoveryActions)
+  | extend Identity = coalesce(
+      tostring(column_ifexists("AccountDisplayName", "")),
+      tostring(column_ifexists("AccountObjectId", "")),
+      tostring(column_ifexists("UserId", "unknown"))
+    )
+  | extend SrcIp = coalesce(tostring(column_ifexists("IPAddress", "")), tostring(column_ifexists("IP", "")))
+  | summarize DiscoveryEvents=count(), DistinctActions=dcount(Action),
+              FirstSeen=min(TimeGenerated), LastSeen=max(TimeGenerated),
+              Actions=make_set(Action, 30), SrcIps=make_set(SrcIp, 20)
+      by bin(TimeGenerated, 30m), Identity
+  | where DiscoveryEvents >= 8 or DistinctActions >= 5
+  | order by DiscoveryEvents desc, TimeGenerated desc
+entityMappings:
+  - entityType: Account
+    fieldMappings:
+      - identifier: Name
+        columnName: Identity
+  - entityType: IP
+    fieldMappings:
+      - identifier: Address
+        columnName: SrcIp
+version: 1.0.0

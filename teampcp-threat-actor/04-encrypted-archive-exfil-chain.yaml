@@ -1,0 +1,46 @@
+id: a4f7318f-5bea-40fe-b554-c9df0efac404
+name: TeamPCP threat actor encrypted archive exfiltration chain
+description: |
+  Detects archive staging, encryption, and HTTP POST command chains associated with TeamPCP exfiltration.
+description-detailed: |
+  This hunt identifies command-line behavior where data is archived and encrypted,
+  then exfiltrated with curl using data-binary POST patterns.
+requiredDataConnectors:
+  - connectorId: MicrosoftThreatProtection
+    dataTypes:
+      - DeviceProcessEvents
+tactics:
+  - Collection
+  - Exfiltration
+relevantTechniques:
+  - T1560
+  - T1027
+  - T1041
+tags:
+  - TeamPCP
+  - Exfiltration
+  - tpcp.tar.gz
+query: |
+  let StartTime = ago(7d);
+  let EndTime = now();
+  DeviceProcessEvents
+  | where TimeGenerated between (StartTime .. EndTime)
+  | where isnotempty(ProcessCommandLine)
+  | where ProcessCommandLine has_any ("tpcp.tar.gz", "openssl enc -aes-256", "--data-binary", "-X POST", "curl", "tar -", "checkmarx.zone", "scan.aquasecurtiy.org")
+  | where ProcessCommandLine has_any ("curl", "openssl", "tar")
+  | summarize EventCount=count(), FirstSeen=min(TimeGenerated), LastSeen=max(TimeGenerated),
+              SampleCommands=make_set(ProcessCommandLine, 25),
+              ChildProcesses=make_set(FileName, 20)
+      by DeviceName, DeviceId, AccountName, InitiatingProcessFileName, InitiatingProcessParentFileName
+  | extend TimeGenerated = FirstSeen
+  | order by EventCount desc, TimeGenerated desc
+entityMappings:
+  - entityType: Host
+    fieldMappings:
+      - identifier: HostName
+        columnName: DeviceName
+  - entityType: Account
+    fieldMappings:
+      - identifier: Name
+        columnName: AccountName
+version: 1.0.0
