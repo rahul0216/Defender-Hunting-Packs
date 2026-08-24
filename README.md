@@ -11,6 +11,7 @@ This repository contains practical Microsoft Defender XDR and Sentinel hunting p
 | TeamPCP Threat Actor | Threat hunting for TeamPCP activity across supply chain compromise, CI/CD credential theft, cloud post-compromise discovery, and persistence behavior | [teampcp-threat-actor](teampcp-threat-actor) |
 | TrapDoor Supply Chain | Threat hunting for TrapDoor supply chain activities across developer and package ecosystems | [trapdoor-supply-chain](trapdoor-supply-chain) |
 | Medusa Ransomware Analysis | Evidence-backed analysis of Medusa ransomware operations, attack flow, indicators, actor profiles, and hunting hypotheses for Microsoft Defender XDR and Sentinel | [Medusa Ransomware Hunting Research](medusa-ransomware/Medusa-Ransomware-Hunting-Research.md) |
+| The Gentlemen RaaS Analysis | Evidence-backed analysis of The Gentlemen ransomware operations, attack flow, indicators, actor profile, propagation methods, and hunting hypotheses for Microsoft Defender XDR and Sentinel | [The Gentlemen Ransomware Hunting Research](gentlemen-raas/Gentlemen-Ransomware-Hunting-Research.md) |
 
 ## Disclaimer
 
