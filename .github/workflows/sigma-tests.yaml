@@ -3,7 +3,14 @@
 
 name: Sigma Rule Tests
 
-on: [push, pull_request, merge_group, workflow_dispatch]
+on:
+  push:
+    paths:
+      - '**/sigma-rules/**'
+  pull_request:
+    paths:
+      - '**/sigma-rules/**'
+  workflow_dispatch:
 
 jobs:
   yamllint:
