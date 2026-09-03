@@ -1,0 +1,28 @@
+title: LSA Protection Registry Value Changed
+id: 1f8432cb-fb82-442e-976f-f71d517473c3
+status: experimental
+description: |
+    Detects modification of registry values that configure added LSA protection.
+    The event can represent weakening or enabling protection; value semantics must
+    be reviewed before treating the change as defense evasion.
+references:
+    - './Mimikatz-Threat-Research-and-Detection-Hypotheses.md'
+    - 'https://learn.microsoft.com/windows-server/security/credentials-protection-and-management/configuring-additional-lsa-protection'
+author: Defender Content Team
+date: 2026-09-04
+tags:
+    - attack.defense-evasion
+    - attack.t1562.001
+logsource:
+    category: registry_set
+    product: windows
+    definition: 'Requires registry value-set telemetry, such as Sysmon Event ID 13, for the LSA configuration path.'
+detection:
+    selection_value:
+        TargetObject|endswith:
+            - '\SYSTEM\CurrentControlSet\Control\Lsa\RunAsPPL'
+            - '\SYSTEM\CurrentControlSet\Control\Lsa\RunAsPPLBoot'
+    condition: selection_value
+falsepositives:
+    - Authorized security policy deployment, operating-system servicing, troubleshooting, or compatibility testing
+level: medium
