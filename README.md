@@ -20,6 +20,7 @@ This repository contains practical Microsoft Defender XDR and Sentinel hunting p
 | Medusa Ransomware Analysis | Evidence-backed analysis of Medusa ransomware operations, attack flow, indicators, actor profiles, and hunting hypotheses for Microsoft Defender XDR and Sentinel | [Medusa Ransomware Hunting Research](medusa-ransomware/Medusa-Ransomware-Hunting-Research.md) |
 | Transparent Tribe APT36 Threat Actor Analysis | Analysis of Transparent Tribe threat actor covering targeting, attack flows, indicators, campaigns, tooling, and hunting hypotheses across Windows, Linux, and Android environments | [Transparent Tribe APT36 Threat Actor Hunting Research](trasparent-tribe-threat-actor/Transparent-Tribe-APT36-Hunting-Research.md) |
 | NovaCookies Campaign Analysis | Analysis of the NovaCookies adversary-in-the-middle phishing service, attack flow, indicators, infrastructure, actor profile, ATT&CK techniques, and hunting hypotheses for Microsoft Defender XDR and Sentinel | [NovaCookies Campaign Hunting Research](novacookies-campaign/NovaCookies-Campaign-Hunting-Research.md) |
+| Shai-Hulud Supply Chain Campaign Analysis | Analysis of Shai-Hulud software supply chain activity across npm packages, developer workstations, CI/CD runners, GitHub repositories, cloud environments, credential theft, persistence, propagation, and exfiltration | [Shai-Hulud Supply Chain Campaign Threat Research](shai-hulud-campaign/Shai-Hulud-Supply-Chain-Campaign-Threat-Research.md) |
 
 ## Disclaimer
 
