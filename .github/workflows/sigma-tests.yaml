@@ -20,6 +20,7 @@ jobs:
     - name: yaml-lint
       uses: ibiqlik/action-yamllint@2576378a8e339169678f9939646ee3ee325e845c # v3
       with:
+        config_file: .github/.yamllint
         strict: true # fail on warnings as well
 
   test-sigma-logsource:
