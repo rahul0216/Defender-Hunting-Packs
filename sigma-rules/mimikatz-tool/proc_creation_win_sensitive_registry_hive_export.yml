@@ -7,12 +7,12 @@ description: |
     not prove that credential material was parsed or transferred.
 references:
     - './Mimikatz-Threat-Research-and-Detection-Hypotheses.md'
-    - 'https://attack.mitre.org/software/S0002/'
 author: Defender Content Team
 date: 2026-09-04
 tags:
     - attack.credential-access
-    - attack.t1003
+    - attack.t1003.002
+    - attack.t1003.004
 logsource:
     category: process_creation
     product: windows

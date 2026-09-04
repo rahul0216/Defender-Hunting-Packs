@@ -1,4 +1,4 @@
-title: LSA Authentication Package Registry Change
+title: Suspicious LSA Authentication Package Registry Change
 id: 8e2336be-edde-4b27-b0fa-79f86f94802f
 status: experimental
 description: |
@@ -7,12 +7,13 @@ description: |
     process tampering, but approved authentication software uses these values too.
 references:
     - './Mimikatz-Threat-Research-and-Detection-Hypotheses.md'
-    - 'https://attack.mitre.org/software/S0002/'
 author: Defender Content Team
 date: 2026-09-04
 tags:
     - attack.persistence
     - attack.credential-access
+    - attack.defense-evasion
+    - attack.privilege-escalation
     - attack.t1547.005
     - attack.t1556
 logsource:

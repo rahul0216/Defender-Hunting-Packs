@@ -7,13 +7,14 @@ description: |
     can be bypassed by modified, encoded, or API-driven implementations.
 references:
     - './Mimikatz-Threat-Research-and-Detection-Hypotheses.md'
-    - 'https://github.com/PowerShellMafia/PowerSploit/blob/master/Exfiltration/Invoke-Mimikatz.ps1'
+    - 'https://github.com/PowerShellMafia/PowerSploit/blob/926979ad1aceb3054debc22c3ec23256f3925f5b/Exfiltration/Invoke-Mimikatz.ps1'
     - 'https://github.com/gentilkiwi/mimikatz'
 author: Defender Content Team
 date: 2026-09-04
 tags:
     - attack.credential-access
-    - attack.t1003
+    - attack.t1003.001
+    - attack.t1003.004
 logsource:
     category: ps_script
     product: windows

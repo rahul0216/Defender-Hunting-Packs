@@ -7,7 +7,6 @@ description: |
     but does not identify a specific tool by itself.
 references:
     - './Mimikatz-Threat-Research-and-Detection-Hypotheses.md'
-    - 'https://attack.mitre.org/software/S0002/'
     - 'https://learn.microsoft.com/sysinternals/downloads/sysmon'
 author: Defender Content Team
 date: 2026-09-04
