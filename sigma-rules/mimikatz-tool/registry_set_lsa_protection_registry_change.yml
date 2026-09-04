@@ -12,7 +12,7 @@ author: Defender Content Team
 date: 2026-09-04
 tags:
     - attack.defense-impairment
-    - attack.t1562.001
+    - attack.t1112
 logsource:
     category: registry_set
     product: windows
