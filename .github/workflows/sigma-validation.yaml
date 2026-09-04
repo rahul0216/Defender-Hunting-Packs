@@ -3,10 +3,10 @@ name: Validate Sigma rules
 on:
   push:
     paths:
-      - './sigma-rules/**'
+      - 'sigma-rules/**'
   pull_request:
     paths:
-      - './sigma-rules/**'
+      - 'sigma-rules/**'
   workflow_dispatch:
 
 env:

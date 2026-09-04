@@ -6,10 +6,10 @@ name: Sigma Rule Tests
 on:
   push:
     paths:
-      - './sigma-rules/**'
+      - 'sigma-rules/**'
   pull_request:
     paths:
-      - './sigma-rules/**'
+      - 'sigma-rules/**'
   workflow_dispatch:
 
 jobs:
