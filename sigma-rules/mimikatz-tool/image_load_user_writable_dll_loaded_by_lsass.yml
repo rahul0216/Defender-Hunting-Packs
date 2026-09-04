@@ -14,7 +14,7 @@ date: 2026-09-04
 tags:
     - attack.persistence
     - attack.credential-access
-    - attack.defense-evasion
+    - attack.defense-impairment
     - attack.t1556
 logsource:
     category: image_load

@@ -12,7 +12,7 @@ date: 2026-09-04
 tags:
     - attack.persistence
     - attack.credential-access
-    - attack.defense-evasion
+    - attack.defense-impairment
     - attack.privilege-escalation
     - attack.t1547.005
     - attack.t1556
