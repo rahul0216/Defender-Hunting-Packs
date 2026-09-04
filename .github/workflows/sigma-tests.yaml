@@ -21,9 +21,7 @@ jobs:
       uses: ibiqlik/action-yamllint@2576378a8e339169678f9939646ee3ee325e845c # v3
       with:
         config_file: .github/.yamllint
-        file_or_dir: |-
-          sigma-rules
-          !sigma-rules/tests
+        file_or_dir: ./sigma-rules
         strict: true # fail on warnings as well
 
   test-sigma-logsource:
@@ -41,7 +39,7 @@ jobs:
     - name: Test Sigma logsource
       run: |
         pip install PyYAML colorama
-        python sigma-rules/tests/test_logsource.py
+        python tests/test_logsource.py
 
   test-sigma-legacy:
     runs-on: ubuntu-latest
@@ -58,7 +56,7 @@ jobs:
     - name: Test Sigma Rules
       run: |
         pip install PyYAML colorama
-        python sigma-rules/tests/test_rules.py
+        python tests/test_rules.py
 
   sigma-check:
     runs-on: ubuntu-latest
@@ -79,7 +77,7 @@ jobs:
         pip install pySigma-validators-sigmahq==0.21.*
     - name: Test Sigma Rule Syntax
       run: |
-        sigma check --fail-on-error --fail-on-issues --validation-config sigma-rules/tests/sigma_cli_conf.yml rules*
+        sigma check --fail-on-error --fail-on-issues --validation-config tests/sigma_cli_conf.yml rules*
 
   duplicate-id-check:
     runs-on: ubuntu-latest
