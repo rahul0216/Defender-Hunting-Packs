@@ -77,7 +77,7 @@ jobs:
         pip install pySigma-validators-sigmahq==0.21.*
     - name: Test Sigma Rule Syntax
       run: |
-        sigma check --fail-on-error --fail-on-issues --validation-config tests/sigma_cli_conf.yml rules*
+        sigma check --fail-on-error --fail-on-issues --validation-config tests/sigma_cli_conf.yml sigma-rules*
 
   duplicate-id-check:
     runs-on: ubuntu-latest
