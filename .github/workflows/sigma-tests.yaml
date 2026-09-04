@@ -21,7 +21,9 @@ jobs:
       uses: ibiqlik/action-yamllint@2576378a8e339169678f9939646ee3ee325e845c # v3
       with:
         config_file: .github/.yamllint
-        file_or_dir: ./sigma-rules
+        file_or_dir: |-
+          sigma-rules
+          !sigma-rules/tests
         strict: true # fail on warnings as well
 
   test-sigma-logsource:

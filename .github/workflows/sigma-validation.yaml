@@ -21,4 +21,5 @@ jobs:
         with:
           paths: |-
             ./sigma-rules
+            !./sigma-rules/tests
           schemaURL: https://raw.githubusercontent.com/SigmaHQ/sigma-specification/refs/tags/${{ env.SIGMA_RULE_SCHEMA_VERSION }}/json-schema/sigma-detection-rule-schema.json
