@@ -12,6 +12,7 @@ author: Defender Content Team
 date: 2026-09-04
 tags:
     - attack.defense-impairment
+    - attack.persistence
     - attack.t1112
 logsource:
     category: registry_set
