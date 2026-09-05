@@ -5,6 +5,8 @@ name: Sigma Rule Tests
 
 on:
   push:
+    branches:
+      - main
     paths:
       - 'sigma-rules/**'
   pull_request:
