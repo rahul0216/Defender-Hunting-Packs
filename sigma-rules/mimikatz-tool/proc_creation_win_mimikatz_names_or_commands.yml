@@ -1,0 +1,37 @@
+title: Mimikatz Names or Credential-Dumping Commands
+id: ed66cacc-48a8-4b72-a4a8-1ab090614363
+status: experimental
+description: |
+    Detects documented Mimikatz-related executable names or credential-dumping
+    command terms in process creation telemetry. This rule is intended as a
+    high-context lead and does not cover renamed or modified implementations.
+references:
+    - './Mimikatz-Threat-Research-and-Detection-Hypotheses.md'
+    - 'https://github.com/gentilkiwi/mimikatz'
+    - 'https://github.com/skelsec/pypykatz'
+author: Defender Content Team
+date: 2026-09-04
+tags:
+    - attack.credential-access
+    - attack.t1003.001
+    - attack.t1003.004
+logsource:
+    category: process_creation
+    product: windows
+    definition: 'Requires process creation telemetry with Image and full CommandLine fields populated.'
+detection:
+    selection_image:
+        Image|endswith:
+            - '\mimikatz.exe'
+            - '\voStro.exe'
+    selection_command:
+        CommandLine|contains:
+            - 'Invoke-Mimikatz'
+            - 'sekurlsa::'
+            - 'lsadump::'
+            - 'pypykatz'
+    condition: 1 of selection_*
+falsepositives:
+    - Authorized security testing, malware analysis, or training activity
+    - Detection engineering that executes representative command lines in an isolated lab
+level: high

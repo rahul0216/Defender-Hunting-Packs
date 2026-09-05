@@ -1,0 +1,33 @@
+title: Mimikatz-Related PowerShell Content
+id: 7424aa12-ca1e-4937-8c11-4ef90a6a085f
+status: experimental
+description: |
+    Detects PowerShell script content containing documented Mimikatz invocation or
+    credential-dumping command terms. This is string-based supporting coverage and
+    can be bypassed by modified, encoded, or API-driven implementations.
+references:
+    - './Mimikatz-Threat-Research-and-Detection-Hypotheses.md'
+    - 'https://github.com/PowerShellMafia/PowerSploit/blob/926979ad1aceb3054debc22c3ec23256f3925f5b/Exfiltration/Invoke-Mimikatz.ps1'
+    - 'https://github.com/gentilkiwi/mimikatz'
+author: Defender Content Team
+date: 2026-09-04
+tags:
+    - attack.credential-access
+    - attack.t1003.001
+    - attack.t1003.004
+logsource:
+    category: ps_script
+    product: windows
+    definition: 'Requires PowerShell Script Block Logging event 4104 or equivalent telemetry with ScriptBlockText populated.'
+detection:
+    selection_content:
+        ScriptBlockText|contains:
+            - 'Invoke-Mimikatz'
+            - 'sekurlsa::'
+            - 'lsadump::'
+            - 'pypykatz'
+    condition: selection_content
+falsepositives:
+    - Authorized security testing, malware analysis, or training activity
+    - Documentation or detection content processed as PowerShell script text
+level: high

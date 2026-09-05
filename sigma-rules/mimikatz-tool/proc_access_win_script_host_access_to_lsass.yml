@@ -1,0 +1,35 @@
+title: Script Host Access to LSASS
+id: 15af367f-e617-4049-a0a4-0de757a8c44f
+status: experimental
+description: |
+    Detects a Windows script host opening LSASS. This can indicate script-hosted or
+    in-memory credential dumping, including capability-equivalent Mimikatz activity,
+    but does not identify a specific tool by itself.
+references:
+    - './Mimikatz-Threat-Research-and-Detection-Hypotheses.md'
+    - 'https://learn.microsoft.com/sysinternals/downloads/sysmon'
+author: Defender Content Team
+date: 2026-09-04
+tags:
+    - attack.credential-access
+    - attack.t1003.001
+logsource:
+    category: process_access
+    product: windows
+    definition: 'Requires Sysmon Event ID 10 or equivalent process-access telemetry with SourceImage and TargetImage populated.'
+detection:
+    selection_target:
+        TargetImage|endswith: '\lsass.exe'
+    selection_source:
+        SourceImage|endswith:
+            - '\powershell.exe'
+            - '\powershell_ise.exe'
+            - '\pwsh.exe'
+            - '\wscript.exe'
+            - '\cscript.exe'
+            - '\mshta.exe'
+    condition: selection_target and selection_source
+falsepositives:
+    - Authorized security testing or administrative frameworks that intentionally inspect LSASS
+    - Endpoint security or diagnostic tooling hosted by a listed script interpreter
+level: high

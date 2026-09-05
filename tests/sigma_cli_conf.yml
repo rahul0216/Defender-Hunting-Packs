@@ -1,0 +1,11 @@
+validators:
+    - all
+    - -tlptag
+    - -tlpv1_tag
+    - -sigmahq_fieldname_cast
+    - -sigmahq_logsource_unknown
+    - -sigmahq_ofselection_condition
+    - -sigmahq_sysmon_missing_eventid
+exclusions:
+    # escaped_wildcard
+    02131055-30b6-480a-84b7-eaa69aeb92bb: escaped_wildcard

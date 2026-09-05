@@ -1,0 +1,32 @@
+title: Suspicious LSA Authentication Package Registry Change
+id: 8e2336be-edde-4b27-b0fa-79f86f94802f
+status: experimental
+description: |
+    Detects changes to LSA security, authentication, or notification package lists.
+    Unexpected changes can support SSP credential interception or authentication
+    process tampering, but approved authentication software uses these values too.
+references:
+    - './Mimikatz-Threat-Research-and-Detection-Hypotheses.md'
+author: Defender Content Team
+date: 2026-09-04
+tags:
+    - attack.persistence
+    - attack.credential-access
+    - attack.defense-impairment
+    - attack.privilege-escalation
+    - attack.t1547.005
+    - attack.t1556
+logsource:
+    category: registry_set
+    product: windows
+    definition: 'Requires registry value-set telemetry, such as Sysmon Event ID 13, for HKLM\SYSTEM\CurrentControlSet\Control\Lsa.'
+detection:
+    selection_value:
+        TargetObject|endswith:
+            - '\SYSTEM\CurrentControlSet\Control\Lsa\Security Packages'
+            - '\SYSTEM\CurrentControlSet\Control\Lsa\Authentication Packages'
+            - '\SYSTEM\CurrentControlSet\Control\Lsa\Notification Packages'
+    condition: selection_value
+falsepositives:
+    - Approved authentication products, smart-card middleware, password filters, security software, or operating-system servicing
+level: high

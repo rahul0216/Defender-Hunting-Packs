@@ -1,0 +1,36 @@
+title: Sensitive Registry Hive Export With Reg
+id: bbee7798-32f6-4960-aa9f-4b9d07d4cc2f
+status: experimental
+description: |
+    Detects reg.exe exporting the SAM, SYSTEM, or SECURITY hive. Such exports can
+    support offline local hash or LSA secret extraction, but each event alone does
+    not prove that credential material was parsed or transferred.
+references:
+    - './Mimikatz-Threat-Research-and-Detection-Hypotheses.md'
+author: Defender Content Team
+date: 2026-09-04
+tags:
+    - attack.credential-access
+    - attack.t1003.002
+    - attack.t1003.004
+logsource:
+    category: process_creation
+    product: windows
+    definition: 'Requires process creation telemetry with full command-line collection, such as Sysmon Event ID 1 or Security Event ID 4688 with command lines enabled.'
+detection:
+    selection_image:
+        Image|endswith: '\reg.exe'
+    selection_action:
+        CommandLine|contains: ' save '
+    selection_hive:
+        CommandLine|contains:
+            - 'hklm\sam'
+            - 'hklm\system'
+            - 'hklm\security'
+            - 'hkey_local_machine\sam'
+            - 'hkey_local_machine\system'
+            - 'hkey_local_machine\security'
+    condition: selection_image and selection_action and selection_hive
+falsepositives:
+    - Authorized backup, recovery, migration, forensic, or endpoint-management activity
+level: high
