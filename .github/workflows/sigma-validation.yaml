@@ -11,6 +11,10 @@ on:
       - 'sigma-rules/**'
   workflow_dispatch:
 
+permissions:
+  contents: read
+  pull-requests: write
+
 env:
   SIGMA_RULE_SCHEMA_VERSION: v2.1.0
 
