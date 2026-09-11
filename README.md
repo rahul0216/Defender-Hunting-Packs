@@ -28,6 +28,7 @@ This repository contains practical Microsoft Defender XDR and Sentinel hunting p
 
 | Report | Focus area | Path |
 |---|---|---|
+| BlueMoon Exploit Kit Analysis | Evidence-based analysis of BlueMoon browser exploitation, targeted campaigns, Chromium and Windows vulnerabilities, evasion methods, indicators, ATT&CK mappings, and hunting hypotheses for Microsoft Defender XDR and Sentinel | [BlueMoon Exploit Kit Threat Research and Hunting Hypotheses](research-reports/phishing-kits/eviltokens-phishing-kit/BlueMoon-Exploit-Kit-Threat-Research.md) |
 | EvilTokens Phishing Kit Analysis | Evidence-based analysis of EvilTokens phishing-as-a-service activity, device-code phishing, token theft, business email compromise preparation, evasion, ATT&CK mappings, and hunting hypotheses for Microsoft Defender XDR and Sentinel | [EvilTokens Phishing Kit Threat Research](research-reports/phishing-kits/eviltokens-phishing-kit/EvilTokens-Phishing-Kit-Threat-Research.md) |
 
 ### Ransomware
