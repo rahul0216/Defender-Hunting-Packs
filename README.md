@@ -55,6 +55,12 @@ This repository contains practical Microsoft Defender XDR and Sentinel hunting p
 | Cobalt Strike Tool Analysis | Evidence-backed analysis of adversary Cobalt Strike use, ATT&CK coverage, indicators, evasion methods, and hunting hypotheses for Microsoft Defender XDR and Sentinel | [Cobalt Strike Threat Hunting Research](research-reports/tools/cobalt-strike-tool/Cobalt-Strike-Threat-Hunting-Research.md) |
 | Mimikatz Tool Analysis | Evidence-based research on Mimikatz capabilities, ATT&CK flows, actor and campaign use, evasion methods, and detection hypotheses for Microsoft Defender XDR and Sentinel | [Mimikatz Threat Research and Detection Hypotheses](research-reports/tools/mimikatz-tool/Mimikatz-Threat-Research-and-Detection-Hypotheses.md) |
 
+### Vulnerability Reports
+
+| Report | Focus area | Path |
+|---|---|---|
+| Plugin4Shell Vulnerability Analysis | Evidence-grounded analysis of commit-pinning bypasses in Claude Code, OpenAI Codex, GitHub Copilot CLI, and Gemini CLI, including affected versions, exploitation conditions, remediation, and hunting opportunities | [Plugin4Shell Vulnerability Report](research-reports/vulnerability-reports/Plugin4Shell-Vulnerability-Report.md) |
+
 ## Disclaimer
 
 These hunting packs are provided for research and detection engineering use. Query results can vary based on telemetry quality, connector coverage, and environment-specific behavior. Always validate, tune, and test queries in your own environment before operational use.
