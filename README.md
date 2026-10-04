@@ -22,6 +22,7 @@ This repository contains practical Microsoft Defender XDR and Sentinel hunting p
 |---|---|---|
 | Console Named-Pipe Process Injection Analysis | Analysis of a Windows process injection technique that delivers payload bytes through redirected console input without VirtualAllocEx or WriteProcessMemory, including behavioral detection opportunities for Microsoft Defender XDR and Sentinel | [Console Named-Pipe Process Injection Threat Research](research-reports/attack-techniques/named-pipe-process-injection/Console-Named-Pipe-Process-Injection-Threat-Research.md) |
 | OpenSUpdater Recompiled 7-Zip SFX Analysis | Analysis of OpenSUpdater malware hidden in recompiled 7-Zip self-extracting installers, including its reflective loading chain, indicators, ATT&CK mapping, and defensive guidance | [OpenSUpdater Recompiled 7-Zip SFX Threat Research](research-reports/attack-techniques/recomplied-7zip-sfx/OpenSUpdater-Recompiled-7Zip-SFX-Threat-Research.md) |
+| Phishing Techniques Analysis | Analysis of recent phishing tradecraft across device code, adversary-in-the-middle, OAuth consent, QR, ClickFix, Teams and phone social engineering, and rogue RDP lures, with hunting guidance for Microsoft Defender XDR and Sentinel | [Phishing Techniques Research for Hunting Development](research-reports/attack-techniques/clickfix-phishing/phishing-techniques-hunting-research.md) |
 
 ### Campaigns
 
