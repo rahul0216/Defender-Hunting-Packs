@@ -33,6 +33,12 @@ This repository contains practical Microsoft Defender XDR and Sentinel hunting p
 | NovaCookies Campaign Analysis | Analysis of the NovaCookies adversary-in-the-middle phishing service, attack flow, indicators, infrastructure, actor profile, ATT&CK techniques, and hunting hypotheses for Microsoft Defender XDR and Sentinel | [NovaCookies Campaign Hunting Research](research-reports/campaigns/novacookies-campaign/NovaCookies-Campaign-Hunting-Research.md) |
 | Shai-Hulud Supply Chain Campaign Analysis | Analysis of Shai-Hulud software supply chain activity across npm packages, developer workstations, CI/CD runners, GitHub repositories, cloud environments, credential theft, persistence, propagation, and exfiltration | [Shai-Hulud Supply Chain Campaign Threat Research](research-reports/campaigns/shai-hulud-campaign/Shai-Hulud-Supply-Chain-Campaign-Threat-Research.md) |
 
+### Malware
+
+| Report | Focus area | Path |
+|---|---|---|
+| PromptSteal and LAMEHUG Malware Analysis | Threat analysis of APT28-associated PromptSteal and LAMEHUG malware, including runtime LLM-assisted command generation, attack flow, indicators, ATT&CK mappings, and hunting guidance for Microsoft Defender XDR and Sentinel | [PromptSteal and LAMEHUG Malware Research](research-reports/malware/promptsteal-malware/PromptSteal-LAMEHUG-Malware-Research.md) |
+
 ### Phishing Kits
 
 | Report | Focus area | Path |
