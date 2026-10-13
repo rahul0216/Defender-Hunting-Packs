@@ -38,6 +38,7 @@ This repository contains practical Microsoft Defender XDR and Sentinel hunting p
 | Report | Focus area | Path |
 |---|---|---|
 | PromptSteal and LAMEHUG Malware Analysis | Threat analysis of APT28-associated PromptSteal and LAMEHUG malware, including runtime LLM-assisted command generation, attack flow, indicators, ATT&CK mappings, and hunting guidance for Microsoft Defender XDR and Sentinel | [PromptSteal and LAMEHUG Malware Research](research-reports/malware/promptsteal-malware/PromptSteal-LAMEHUG-Malware-Research.md) |
+| XWorm Malware Analysis | Evidence-grounded analysis of XWorm RAT capabilities, observed campaigns, infection chains, indicators, ATT&CK mappings, detection opportunities, and response guidance | [XWorm Malware Research Report](research-reports/malware/xworm-rat/XWorm-Threat-Research-Report.md) |
 
 ### Phishing Kits
 
