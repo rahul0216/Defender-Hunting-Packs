@@ -83,6 +83,8 @@ This repository contains practical Microsoft Defender XDR and Sentinel hunting p
 | Report | Focus area | Path |
 |---|---|---|
 | LMCache CVE-2026-105192 Vulnerability Analysis | Analysis of unauthenticated remote code execution through unsafe pickle deserialization in the LMCache multiprocess ZeroMQ transport, including affected versions, exploitation conditions, mitigations, and hunting guidance | [LMCache CVE-2026-105192 Vulnerability Report](research-reports/vulnerability-reports/LMCache-CVE-2026-105192-Vulnerability-Report.md) |
+| Node2Shell Vulnerability Analysis | Analysis of CVE-2026-111497 in the Brotli decoder bundled with Node.js, including memory corruption, researcher-reported code execution, affected releases, remediation, and threat-hunting opportunities | [Node2Shell Threat Research and Vulnerability Report](research-reports/vulnerability-reports/Node2Shell-Threat-Research-Report.md) |
+| PHP2Shell Vulnerability Analysis | Analysis of PHP runtime vulnerabilities CVE-2026-109618 and CVE-2026-109619, including remote code execution, memory disclosure, reported in-the-wild exploitation, affected runtimes, remediation, and investigation opportunities | [PHP2Shell Threat Research and Vulnerability Report](research-reports/vulnerability-reports/PHP2Shell-Threat-Research-Report.md) |
 | Plugin4Shell Vulnerability Analysis | Evidence-grounded analysis of commit-pinning bypasses in Claude Code, OpenAI Codex, GitHub Copilot CLI, and Gemini CLI, including affected versions, exploitation conditions, remediation, and hunting opportunities | [Plugin4Shell Vulnerability Report](research-reports/vulnerability-reports/Plugin4Shell-Vulnerability-Report.md) |
 
 ## Disclaimer
